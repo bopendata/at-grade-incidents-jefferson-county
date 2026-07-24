@@ -1,0 +1,1055 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet.photon.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/multi-style-layer.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet.photon.js"></script>
+        <script src="data/JeffersonCounty_0.js"></script>
+        <script src="data/Railnetworklines_1.js"></script>
+        <script src="data/RoadNetwork_2.js"></script>
+        <script src="data/FunctionallyClassifiedRoadways_3.js"></script>
+        <script src="data/RailCrossingsIncidents_4.js"></script>
+        <script src="data/RailCrossingsInjuries_5.js"></script>
+        <script src="data/RailCrossingsFatalities_6.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[33.15056456587348,-87.82472077358736],[34.264385194689694,-85.92301387599298]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // modify popup if contains media
+        function addClassToPopupIfMedia(content, popup) {
+            var tempDiv = document.createElement('div');
+            tempDiv.innerHTML = content;
+            var imgTd = tempDiv.querySelector('td img');
+            if (imgTd) {
+                var src = imgTd.getAttribute('src');
+                if (/\.(jpg|jpeg|png|gif|bmp|webp|avif)$/i.test(src)) {
+                    popup._contentNode.classList.add('media');
+                    setTimeout(function() {
+                        popup.update();
+                    }, 10);
+                } else if (/\.(mp3|wav|ogg|aac)$/i.test(src)) {
+                    var audio = document.createElement('audio');
+                    audio.controls = true;
+                    audio.src = src;
+                    imgTd.parentNode.replaceChild(audio, imgTd);
+                    popup._contentNode.classList.add('media');
+                    setTimeout(function() {
+                        popup.setContent(tempDiv.innerHTML);
+                        popup.update();
+                    }, 10);
+                } else if (/\.(mp4|webm|ogg|mov)$/i.test(src)) {
+                    var video = document.createElement('video');
+                    video.controls = true;
+                    video.src = src;
+                    video.style.width = "400px";
+                    video.style.height = "300px";
+                    video.style.maxHeight = "60vh";
+                    video.style.maxWidth = "60vw";
+                    imgTd.parentNode.replaceChild(video, imgTd);
+                    popup._contentNode.classList.add('media');
+                    // Aggiorna il popup quando il video carica i metadati
+                    video.addEventListener('loadedmetadata', function() {
+                        popup.update();
+                    });
+                    setTimeout(function() {
+                        popup.setContent(tempDiv.innerHTML);
+                        popup.update();
+                    }, 10);
+                } else {
+                    popup._contentNode.classList.remove('media');
+                }
+            } else {
+                popup._contentNode.classList.remove('media');
+            }
+        }
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        function pop_JeffersonCounty_0(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td class="visible-with-data" id="STATEFP" colspan="2"><strong>STATEFP</strong><br />' + (feature.properties['STATEFP'] !== null ? autolinker.link(String(feature.properties['STATEFP']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td class="visible-with-data" id="COUNTYFP" colspan="2"><strong>COUNTYFP</strong><br />' + (feature.properties['COUNTYFP'] !== null ? autolinker.link(String(feature.properties['COUNTYFP']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">COUNTYNS</th>\
+                        <td class="visible-with-data" id="COUNTYNS">' + (feature.properties['COUNTYNS'] !== null ? autolinker.link(String(feature.properties['COUNTYNS']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td class="visible-with-data" id="GEOID" colspan="2"><strong>GEOID</strong><br />' + (feature.properties['GEOID'] !== null ? autolinker.link(String(feature.properties['GEOID']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td class="visible-with-data" id="NAME" colspan="2"><strong>NAME</strong><br />' + (feature.properties['NAME'] !== null ? autolinker.link(String(feature.properties['NAME']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAMELSAD'] !== null ? autolinker.link(String(feature.properties['NAMELSAD']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LSAD'] !== null ? autolinker.link(String(feature.properties['LSAD']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CLASSFP'] !== null ? autolinker.link(String(feature.properties['CLASSFP']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MTFCC'] !== null ? autolinker.link(String(feature.properties['MTFCC']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CSAFP'] !== null ? autolinker.link(String(feature.properties['CSAFP']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CBSAFP'] !== null ? autolinker.link(String(feature.properties['CBSAFP']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['METDIVFP'] !== null ? autolinker.link(String(feature.properties['METDIVFP']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FUNCSTAT'] !== null ? autolinker.link(String(feature.properties['FUNCSTAT']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ALAND'] !== null ? autolinker.link(String(feature.properties['ALAND']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['AWATER'] !== null ? autolinker.link(String(feature.properties['AWATER']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['INTPTLAT'] !== null ? autolinker.link(String(feature.properties['INTPTLAT']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['INTPTLON'] !== null ? autolinker.link(String(feature.properties['INTPTLON']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_JeffersonCounty_0_0() {
+            return {
+                pane: 'pane_JeffersonCounty_0',
+                opacity: 1,
+                color: 'rgba(110,110,110,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(250,249,247,0.33725490196078434)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_JeffersonCounty_0');
+        map.getPane('pane_JeffersonCounty_0').style.zIndex = 400;
+        map.getPane('pane_JeffersonCounty_0').style['mix-blend-mode'] = 'normal';
+        var layer_JeffersonCounty_0 = new L.geoJson(json_JeffersonCounty_0, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_JeffersonCounty_0',
+            layerName: 'layer_JeffersonCounty_0',
+            pane: 'pane_JeffersonCounty_0',
+            onEachFeature: pop_JeffersonCounty_0,
+            style: style_JeffersonCounty_0_0,
+        });
+        bounds_group.addLayer(layer_JeffersonCounty_0);
+        map.addLayer(layer_JeffersonCounty_0);
+        function pop_Railnetworklines_1(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['OBJECTID'] !== null ? autolinker.link(String(feature.properties['OBJECTID']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FRAARCID'] !== null ? autolinker.link(String(feature.properties['FRAARCID']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FRFRANODE'] !== null ? autolinker.link(String(feature.properties['FRFRANODE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TOFRANODE'] !== null ? autolinker.link(String(feature.properties['TOFRANODE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['STFIPS'] !== null ? autolinker.link(String(feature.properties['STFIPS']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CNTYFIPS'] !== null ? autolinker.link(String(feature.properties['CNTYFIPS']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['STCNTYFIPS'] !== null ? autolinker.link(String(feature.properties['STCNTYFIPS']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['STATEAB'] !== null ? autolinker.link(String(feature.properties['STATEAB']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['COUNTRY'] !== null ? autolinker.link(String(feature.properties['COUNTRY']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FRADISTRCT'] !== null ? autolinker.link(String(feature.properties['FRADISTRCT']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['RROWNER1'] !== null ? autolinker.link(String(feature.properties['RROWNER1']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['RROWNER2'] !== null ? autolinker.link(String(feature.properties['RROWNER2']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['RROWNER3'] !== null ? autolinker.link(String(feature.properties['RROWNER3']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TRKRGHTS1'] !== null ? autolinker.link(String(feature.properties['TRKRGHTS1']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TRKRGHTS2'] !== null ? autolinker.link(String(feature.properties['TRKRGHTS2']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TRKRGHTS3'] !== null ? autolinker.link(String(feature.properties['TRKRGHTS3']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TRKRGHTS4'] !== null ? autolinker.link(String(feature.properties['TRKRGHTS4']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TRKRGHTS5'] !== null ? autolinker.link(String(feature.properties['TRKRGHTS5']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TRKRGHTS6'] !== null ? autolinker.link(String(feature.properties['TRKRGHTS6']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TRKRGHTS7'] !== null ? autolinker.link(String(feature.properties['TRKRGHTS7']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TRKRGHTS8'] !== null ? autolinker.link(String(feature.properties['TRKRGHTS8']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TRKRGHTS9'] !== null ? autolinker.link(String(feature.properties['TRKRGHTS9']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DIVISION'] !== null ? autolinker.link(String(feature.properties['DIVISION']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SUBDIV'] !== null ? autolinker.link(String(feature.properties['SUBDIV']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['BRANCH'] !== null ? autolinker.link(String(feature.properties['BRANCH']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['YARDNAME'] !== null ? autolinker.link(String(feature.properties['YARDNAME']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['PASSNGR'] !== null ? autolinker.link(String(feature.properties['PASSNGR']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['STRACNET'] !== null ? autolinker.link(String(feature.properties['STRACNET']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TRACKS'] !== null ? autolinker.link(String(feature.properties['TRACKS']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NET'] !== null ? autolinker.link(String(feature.properties['NET']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MILES'] !== null ? autolinker.link(String(feature.properties['MILES']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KM'] !== null ? autolinker.link(String(feature.properties['KM']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TIMEZONE'] !== null ? autolinker.link(String(feature.properties['TIMEZONE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Railnetworklines_1_0() {
+            return {
+                pane: 'pane_Railnetworklines_1',
+                opacity: 1,
+                color: 'rgba(255,255,255,1.0)',
+                dashArray: '',
+                lineCap: 'round',
+                lineJoin: 'round',
+                weight: 2.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        function style_Railnetworklines_1_1() {
+            return {
+                pane: 'pane_Railnetworklines_1',
+                opacity: 1,
+                color: 'rgba(44,62,80,1.0)',
+                dashArray: '',
+                lineCap: 'round',
+                lineJoin: 'round',
+                weight: 2.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_Railnetworklines_1');
+        map.getPane('pane_Railnetworklines_1').style.zIndex = 401;
+        map.getPane('pane_Railnetworklines_1').style['mix-blend-mode'] = 'normal';
+        var layer_Railnetworklines_1 = new L.geoJson.multiStyle(json_Railnetworklines_1, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_Railnetworklines_1',
+            layerName: 'layer_Railnetworklines_1',
+            pane: 'pane_Railnetworklines_1',
+            onEachFeature: pop_Railnetworklines_1,
+            styles: [style_Railnetworklines_1_0,style_Railnetworklines_1_1,]
+        });
+        bounds_group.addLayer(layer_Railnetworklines_1);
+        map.addLayer(layer_Railnetworklines_1);
+        function pop_RoadNetwork_2(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['id'] !== null ? autolinker.link(String(feature.properties['id']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['@id'] !== null ? autolinker.link(String(feature.properties['@id']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['highway'] !== null ? autolinker.link(String(feature.properties['highway']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_RoadNetwork_2_0() {
+            return {
+                pane: 'pane_RoadNetwork_2',
+                opacity: 1,
+                color: 'rgba(242,242,242,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_RoadNetwork_2');
+        map.getPane('pane_RoadNetwork_2').style.zIndex = 402;
+        map.getPane('pane_RoadNetwork_2').style['mix-blend-mode'] = 'normal';
+        var layer_RoadNetwork_2 = new L.geoJson(json_RoadNetwork_2, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_RoadNetwork_2',
+            layerName: 'layer_RoadNetwork_2',
+            pane: 'pane_RoadNetwork_2',
+            onEachFeature: pop_RoadNetwork_2,
+            style: style_RoadNetwork_2_0,
+        });
+        bounds_group.addLayer(layer_RoadNetwork_2);
+        map.addLayer(layer_RoadNetwork_2);
+        function pop_FunctionallyClassifiedRoadways_3(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Route Name</th>\
+                        <td class="visible-with-data" id="FULLNAME">' + (feature.properties['FULLNAME'] !== null ? autolinker.link(String(feature.properties['FULLNAME']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_FunctionallyClassifiedRoadways_3_0(feature) {
+            switch(String(feature.properties['FCC_CODE'])) {
+                case '1':
+                    return {
+                pane: 'pane_FunctionallyClassifiedRoadways_3',
+                opacity: 1,
+                color: 'rgba(110,110,110,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 3.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+                    break;
+                case '2':
+                    return {
+                pane: 'pane_FunctionallyClassifiedRoadways_3',
+                opacity: 1,
+                color: 'rgba(138,138,138,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 3.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+                    break;
+                case '3':
+                    return {
+                pane: 'pane_FunctionallyClassifiedRoadways_3',
+                opacity: 1,
+                color: 'rgba(166,166,166,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 2.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+                    break;
+                case '4':
+                    return {
+                pane: 'pane_FunctionallyClassifiedRoadways_3',
+                opacity: 1,
+                color: 'rgba(194,194,194,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 2.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+                    break;
+                case '5':
+                    return {
+                pane: 'pane_FunctionallyClassifiedRoadways_3',
+                opacity: 1,
+                color: 'rgba(222,222,222,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 2.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+                    break;
+                case '6':
+                    return {
+                pane: 'pane_FunctionallyClassifiedRoadways_3',
+                opacity: 1,
+                color: 'rgba(232,232,232,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 2.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+                    break;
+                case '31':
+                    return {
+                pane: 'pane_FunctionallyClassifiedRoadways_3',
+                opacity: 1,
+                color: 'rgba(176,176,176,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+                    break;
+                default:
+                    return {
+                pane: 'pane_FunctionallyClassifiedRoadways_3',
+                opacity: 1,
+                color: 'rgba(240,240,240,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_FunctionallyClassifiedRoadways_3');
+        map.getPane('pane_FunctionallyClassifiedRoadways_3').style.zIndex = 403;
+        map.getPane('pane_FunctionallyClassifiedRoadways_3').style['mix-blend-mode'] = 'normal';
+        var layer_FunctionallyClassifiedRoadways_3 = new L.geoJson(json_FunctionallyClassifiedRoadways_3, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_FunctionallyClassifiedRoadways_3',
+            layerName: 'layer_FunctionallyClassifiedRoadways_3',
+            pane: 'pane_FunctionallyClassifiedRoadways_3',
+            onEachFeature: pop_FunctionallyClassifiedRoadways_3,
+            style: style_FunctionallyClassifiedRoadways_3_0,
+        });
+        bounds_group.addLayer(layer_FunctionallyClassifiedRoadways_3);
+        map.addLayer(layer_FunctionallyClassifiedRoadways_3);
+        function pop_RailCrossingsIncidents_4(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Crossing ID</th>\
+                        <td class="visible-with-data" id="crossing_id">' + (feature.properties['crossing_id'] !== null ? autolinker.link(String(feature.properties['crossing_id']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Street</th>\
+                        <td class="visible-with-data" id="street">' + (feature.properties['street'] !== null ? autolinker.link(String(feature.properties['street']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Trains per day</th>\
+                        <td class="visible-with-data" id="trains_per_day">' + (feature.properties['trains_per_day'] !== null ? autolinker.link(String(feature.properties['trains_per_day']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Total Incidents (Since 1975)</th>\
+                        <td class="visible-with-data" id="total_incidents_all_years">' + (feature.properties['total_incidents_all_years'] !== null ? autolinker.link(String(feature.properties['total_incidents_all_years']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Total Fatalities (Since 1975)</th>\
+                        <td class="visible-with-data" id="total_fatalities_all_years">' + (feature.properties['total_fatalities_all_years'] !== null ? autolinker.link(String(feature.properties['total_fatalities_all_years']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Total Injuries (Since 1975)</th>\
+                        <td class="visible-with-data" id="total_injuries_all_years">' + (feature.properties['total_injuries_all_years'] !== null ? autolinker.link(String(feature.properties['total_injuries_all_years']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Total Incidents (2015–2025)</th>\
+                        <td class="visible-with-data" id="total_incidents_2015_2025">' + (feature.properties['total_incidents_2015_2025'] !== null ? autolinker.link(String(feature.properties['total_incidents_2015_2025']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Total Fatalities (2015–2025)</th>\
+                        <td class="visible-with-data" id="total_fatalities_2015_2025">' + (feature.properties['total_fatalities_2015_2025'] !== null ? autolinker.link(String(feature.properties['total_fatalities_2015_2025']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Total Injuries (2015–2025)</th>\
+                        <td class="visible-with-data" id="total_injuries_2015_2025">' + (feature.properties['total_injuries_2015_2025'] !== null ? autolinker.link(String(feature.properties['total_injuries_2015_2025']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Annual average daily traffic count</th>\
+                        <td class="visible-with-data" id="annual_average_daily_traffic_count">' + (feature.properties['annual_average_daily_traffic_count'] !== null ? autolinker.link(String(feature.properties['annual_average_daily_traffic_count']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_RailCrossingsIncidents_4_0(feature) {
+            if (feature.properties['total_incidents_2015_2025'] >= 0.000000 && feature.properties['total_incidents_2015_2025'] <= 0.000000 ) {
+                return {
+                pane: 'pane_RailCrossingsIncidents_4',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(44,123,182,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['total_incidents_2015_2025'] >= 0.000000 && feature.properties['total_incidents_2015_2025'] <= 1.100000 ) {
+                return {
+                pane: 'pane_RailCrossingsIncidents_4',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(87,99,144,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['total_incidents_2015_2025'] >= 1.100000 && feature.properties['total_incidents_2015_2025'] <= 3.100000 ) {
+                return {
+                pane: 'pane_RailCrossingsIncidents_4',
+                radius: 6.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(130,74,105,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['total_incidents_2015_2025'] >= 3.100000 && feature.properties['total_incidents_2015_2025'] <= 6.100000 ) {
+                return {
+                pane: 'pane_RailCrossingsIncidents_4',
+                radius: 8.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(172,49,66,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['total_incidents_2015_2025'] >= 6.100000 && feature.properties['total_incidents_2015_2025'] <= 11.000000 ) {
+                return {
+                pane: 'pane_RailCrossingsIncidents_4',
+                radius: 10.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(215,25,28,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_RailCrossingsIncidents_4');
+        map.getPane('pane_RailCrossingsIncidents_4').style.zIndex = 404;
+        map.getPane('pane_RailCrossingsIncidents_4').style['mix-blend-mode'] = 'normal';
+        var layer_RailCrossingsIncidents_4 = new L.geoJson(json_RailCrossingsIncidents_4, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_RailCrossingsIncidents_4',
+            layerName: 'layer_RailCrossingsIncidents_4',
+            pane: 'pane_RailCrossingsIncidents_4',
+            onEachFeature: pop_RailCrossingsIncidents_4,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_RailCrossingsIncidents_4_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_RailCrossingsIncidents_4);
+        // map.addLayer(layer_RailCrossingsIncidents_4);
+        function pop_RailCrossingsInjuries_5(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Crossing ID</th>\
+                        <td class="visible-with-data" id="crossing_id">' + (feature.properties['crossing_id'] !== null ? autolinker.link(String(feature.properties['crossing_id']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Street</th>\
+                        <td class="visible-with-data" id="street">' + (feature.properties['street'] !== null ? autolinker.link(String(feature.properties['street']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Trains per day</th>\
+                        <td class="visible-with-data" id="trains_per_day">' + (feature.properties['trains_per_day'] !== null ? autolinker.link(String(feature.properties['trains_per_day']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Total Incidents (Since 1975)</th>\
+                        <td class="visible-with-data" id="total_incidents_all_years">' + (feature.properties['total_incidents_all_years'] !== null ? autolinker.link(String(feature.properties['total_incidents_all_years']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Total Fatalities (Since 1975)</th>\
+                        <td class="visible-with-data" id="total_fatalities_all_years">' + (feature.properties['total_fatalities_all_years'] !== null ? autolinker.link(String(feature.properties['total_fatalities_all_years']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Total Injuries (Since 1975)</th>\
+                        <td class="visible-with-data" id="total_injuries_all_years">' + (feature.properties['total_injuries_all_years'] !== null ? autolinker.link(String(feature.properties['total_injuries_all_years']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Total Incidents (2015–2025)</th>\
+                        <td class="visible-with-data" id="total_incidents_2015_2025">' + (feature.properties['total_incidents_2015_2025'] !== null ? autolinker.link(String(feature.properties['total_incidents_2015_2025']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Total Fatalities (2015–2025)</th>\
+                        <td class="visible-with-data" id="total_fatalities_2015_2025">' + (feature.properties['total_fatalities_2015_2025'] !== null ? autolinker.link(String(feature.properties['total_fatalities_2015_2025']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Total Injuries (2015–2025)</th>\
+                        <td class="visible-with-data" id="total_injuries_2015_2025">' + (feature.properties['total_injuries_2015_2025'] !== null ? autolinker.link(String(feature.properties['total_injuries_2015_2025']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Annual average daily traffic count</th>\
+                        <td class="visible-with-data" id="annual_average_daily_traffic_count">' + (feature.properties['annual_average_daily_traffic_count'] !== null ? autolinker.link(String(feature.properties['annual_average_daily_traffic_count']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_RailCrossingsInjuries_5_0(feature) {
+            if (feature.properties['total_injuries_2015_2025'] >= 0.000000 && feature.properties['total_injuries_2015_2025'] <= 0.100000 ) {
+                return {
+                pane: 'pane_RailCrossingsInjuries_5',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(44,123,182,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['total_injuries_2015_2025'] >= 0.100000 && feature.properties['total_injuries_2015_2025'] <= 1.900000 ) {
+                return {
+                pane: 'pane_RailCrossingsInjuries_5',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(87,99,144,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['total_injuries_2015_2025'] >= 1.900000 && feature.properties['total_injuries_2015_2025'] <= 3.100000 ) {
+                return {
+                pane: 'pane_RailCrossingsInjuries_5',
+                radius: 6.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(130,74,105,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['total_injuries_2015_2025'] >= 3.100000 && feature.properties['total_injuries_2015_2025'] <= 5.100000 ) {
+                return {
+                pane: 'pane_RailCrossingsInjuries_5',
+                radius: 8.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(172,49,66,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['total_injuries_2015_2025'] >= 5.100000 && feature.properties['total_injuries_2015_2025'] <= 8.000000 ) {
+                return {
+                pane: 'pane_RailCrossingsInjuries_5',
+                radius: 10.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(215,25,28,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_RailCrossingsInjuries_5');
+        map.getPane('pane_RailCrossingsInjuries_5').style.zIndex = 405;
+        map.getPane('pane_RailCrossingsInjuries_5').style['mix-blend-mode'] = 'normal';
+        var layer_RailCrossingsInjuries_5 = new L.geoJson(json_RailCrossingsInjuries_5, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_RailCrossingsInjuries_5',
+            layerName: 'layer_RailCrossingsInjuries_5',
+            pane: 'pane_RailCrossingsInjuries_5',
+            onEachFeature: pop_RailCrossingsInjuries_5,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_RailCrossingsInjuries_5_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_RailCrossingsInjuries_5);
+        // map.addLayer(layer_RailCrossingsInjuries_5);
+        function pop_RailCrossingsFatalities_6(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Crossing ID</th>\
+                        <td class="visible-with-data" id="crossing_id">' + (feature.properties['crossing_id'] !== null ? autolinker.link(String(feature.properties['crossing_id']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Street</th>\
+                        <td class="visible-with-data" id="street">' + (feature.properties['street'] !== null ? autolinker.link(String(feature.properties['street']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Trains per day</th>\
+                        <td class="visible-with-data" id="trains_per_day">' + (feature.properties['trains_per_day'] !== null ? autolinker.link(String(feature.properties['trains_per_day']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Total Incidents (Since 1975)</th>\
+                        <td class="visible-with-data" id="total_incidents_all_years">' + (feature.properties['total_incidents_all_years'] !== null ? autolinker.link(String(feature.properties['total_incidents_all_years']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Total Fatalities (Since 1975)</th>\
+                        <td class="visible-with-data" id="total_fatalities_all_years">' + (feature.properties['total_fatalities_all_years'] !== null ? autolinker.link(String(feature.properties['total_fatalities_all_years']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Total Injuries (Since 1975)</th>\
+                        <td class="visible-with-data" id="total_injuries_all_years">' + (feature.properties['total_injuries_all_years'] !== null ? autolinker.link(String(feature.properties['total_injuries_all_years']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Total Incidents (2015–2025)</th>\
+                        <td class="visible-with-data" id="total_incidents_2015_2025">' + (feature.properties['total_incidents_2015_2025'] !== null ? autolinker.link(String(feature.properties['total_incidents_2015_2025']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Total Fatalities (2015–2025)</th>\
+                        <td class="visible-with-data" id="total_fatalities_2015_2025">' + (feature.properties['total_fatalities_2015_2025'] !== null ? autolinker.link(String(feature.properties['total_fatalities_2015_2025']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Total Injuries (2015–2025)</th>\
+                        <td class="visible-with-data" id="total_injuries_2015_2025">' + (feature.properties['total_injuries_2015_2025'] !== null ? autolinker.link(String(feature.properties['total_injuries_2015_2025']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Annual average daily traffic count</th>\
+                        <td class="visible-with-data" id="annual_average_daily_traffic_count">' + (feature.properties['annual_average_daily_traffic_count'] !== null ? autolinker.link(String(feature.properties['annual_average_daily_traffic_count']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_RailCrossingsFatalities_6_0(feature) {
+            if (feature.properties['total_fatalities_2015_2025'] >= 0.000000 && feature.properties['total_fatalities_2015_2025'] <= 0.000000 ) {
+                return {
+                pane: 'pane_RailCrossingsFatalities_6',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(44,123,182,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['total_fatalities_2015_2025'] >= 0.000000 && feature.properties['total_fatalities_2015_2025'] <= 1.100000 ) {
+                return {
+                pane: 'pane_RailCrossingsFatalities_6',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(87,99,144,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['total_fatalities_2015_2025'] >= 1.100000 && feature.properties['total_fatalities_2015_2025'] <= 2.100000 ) {
+                return {
+                pane: 'pane_RailCrossingsFatalities_6',
+                radius: 6.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(130,74,105,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['total_fatalities_2015_2025'] >= 2.100000 && feature.properties['total_fatalities_2015_2025'] <= 3.100000 ) {
+                return {
+                pane: 'pane_RailCrossingsFatalities_6',
+                radius: 8.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(172,49,66,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['total_fatalities_2015_2025'] >= 3.100000 && feature.properties['total_fatalities_2015_2025'] <= 4.000000 ) {
+                return {
+                pane: 'pane_RailCrossingsFatalities_6',
+                radius: 10.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(215,25,28,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_RailCrossingsFatalities_6');
+        map.getPane('pane_RailCrossingsFatalities_6').style.zIndex = 406;
+        map.getPane('pane_RailCrossingsFatalities_6').style['mix-blend-mode'] = 'normal';
+        var layer_RailCrossingsFatalities_6 = new L.geoJson(json_RailCrossingsFatalities_6, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_RailCrossingsFatalities_6',
+            layerName: 'layer_RailCrossingsFatalities_6',
+            pane: 'pane_RailCrossingsFatalities_6',
+            onEachFeature: pop_RailCrossingsFatalities_6,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_RailCrossingsFatalities_6_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_RailCrossingsFatalities_6);
+        // map.addLayer(layer_RailCrossingsFatalities_6);
+// Crossing layers object
+var crossingLayers = {
+    "Incidents (2015–2025)": layer_RailCrossingsIncidents_4,
+    "Injuries (2015–2025)": layer_RailCrossingsInjuries_5,
+    "Fatalities (2015–2025)": layer_RailCrossingsFatalities_6
+};
+
+// Add only the default layer
+var activeCrossingLayer = layer_RailCrossingsIncidents_4;
+map.addLayer(activeCrossingLayer);
+
+// Switch function: remove all layers first, then add the selected one
+function switchCrossingLayer(newLayer) {
+    for (var key in crossingLayers) {
+        if (map.hasLayer(crossingLayers[key])) {
+            map.removeLayer(crossingLayers[key]);
+        }
+    }
+    map.addLayer(newLayer);
+    activeCrossingLayer = newLayer;
+}
+
+
+var crossingControl = L.control({position: 'topright'});
+
+crossingControl.onAdd = function () {
+    // main container
+    var div = L.DomUtil.create('div', 'info legend leaflet-control-crossing');
+    div.innerHTML = '<strong>At-Grade Railroad Crossings</strong><br>';
+
+
+    for (var name in crossingLayers) {
+        var label = document.createElement('label');
+
+        var input = document.createElement('input');
+        input.type = 'radio';
+        input.name = 'At-Grade Railroad Crossings';
+        input.value = name;
+
+        if(name === "Incidents (2015–2025)") input.checked = true;
+
+        input.addEventListener('change', function(e){
+            switchCrossingLayer(crossingLayers[e.target.value]);
+        });
+
+        label.appendChild(input);
+        label.appendChild(document.createTextNode(name));
+        div.appendChild(label);
+    }
+    return div;
+};
+
+crossingControl.addTo(map);
+
+        setBounds();
+        </script>        
+    </body>
+</html>
