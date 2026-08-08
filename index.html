@@ -1087,6 +1087,8 @@ crossingControl.onAdd = function () {
 crossingControl.addTo(map);
 
         setBounds();
+map.setZoom(map.getZoom() + 2);
+map.panBy([0, 300]);
         </script>        
     </body>
 </html>
