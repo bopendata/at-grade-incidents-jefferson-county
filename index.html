@@ -586,7 +586,18 @@
 			layer.on('popupopen', function(e) {
 				addClassToPopupIfMedia(content, e.popup);
 			});
-			layer.bindPopup(content, { maxHeight: 400 });
+			layer.bindPopup(content, {
+    maxHeight: 400,
+    closeButton: false
+});
+
+layer.on('mouseover', function () {
+    this.openPopup();
+});
+
+layer.on('mouseout', function () {
+    this.closePopup();
+});
         }
 
         function style_RailCrossingsIncidents_4_0(feature) {
@@ -735,10 +746,23 @@
                     </tr>\
                 </table>';
             var content = removeEmptyRowsFromPopupContent(popupContent, feature);
-			layer.on('popupopen', function(e) {
-				addClassToPopupIfMedia(content, e.popup);
-			});
-			layer.bindPopup(content, { maxHeight: 400 });
+
+layer.on('popupopen', function(e) {
+    addClassToPopupIfMedia(content, e.popup);
+});
+
+layer.bindPopup(content, {
+    maxHeight: 400,
+    closeButton: false
+});
+
+layer.on('mouseover', function () {
+    this.openPopup();
+});
+
+layer.on('mouseout', function () {
+    this.closePopup();
+});
         }
 
         function style_RailCrossingsInjuries_5_0(feature) {
@@ -887,10 +911,23 @@
                     </tr>\
                 </table>';
             var content = removeEmptyRowsFromPopupContent(popupContent, feature);
-			layer.on('popupopen', function(e) {
-				addClassToPopupIfMedia(content, e.popup);
-			});
-			layer.bindPopup(content, { maxHeight: 400 });
+
+layer.on('popupopen', function(e) {
+    addClassToPopupIfMedia(content, e.popup);
+});
+
+layer.bindPopup(content, {
+    maxHeight: 400,
+    closeButton: false
+});
+
+layer.on('mouseover', function () {
+    this.openPopup();
+});
+
+layer.on('mouseout', function () {
+    this.closePopup();
+});
         }
 
         function style_RailCrossingsFatalities_6_0(feature) {
