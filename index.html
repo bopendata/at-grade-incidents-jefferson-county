@@ -582,11 +582,13 @@
                         <td class="visible-with-data" id="annual_average_daily_traffic_count">' + (feature.properties['annual_average_daily_traffic_count'] !== null ? autolinker.link(String(feature.properties['annual_average_daily_traffic_count']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                 </table>';
-            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
-			layer.on('popupopen', function(e) {
-				addClassToPopupIfMedia(content, e.popup);
-			});
-			layer.bindPopup(content, {
+           var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+
+layer.on('popupopen', function(e) {
+    addClassToPopupIfMedia(content, e.popup);
+});
+
+layer.bindPopup(content, {
     maxHeight: 400,
     closeButton: false
 });
@@ -1044,22 +1046,16 @@ var activeCrossingLayer = layer_RailCrossingsIncidents_4;
 map.addLayer(activeCrossingLayer);
 
 // Switch function: remove all layers first, then add the selected one
-var activeCrossingLayer = layer_RailCrossingsIncidents_4;
-map.addLayer(activeCrossingLayer);
-
 function switchCrossingLayer(newLayer) {
-
-    if (newLayer === activeCrossingLayer) {
-        return;
+    for (var key in crossingLayers) {
+        if (map.hasLayer(crossingLayers[key])) {
+            map.removeLayer(crossingLayers[key]);
+        }
     }
-
-    if (activeCrossingLayer && map.hasLayer(activeCrossingLayer)) {
-        map.removeLayer(activeCrossingLayer);
-    }
-
     map.addLayer(newLayer);
     activeCrossingLayer = newLayer;
 }
+
 
 var crossingControl = L.control({position: 'topright'});
 
@@ -1093,8 +1089,16 @@ crossingControl.onAdd = function () {
 crossingControl.addTo(map);
 
         setBounds();
-map.setZoom(map.getZoom() + 2);
-map.panBy([0, 300]);
+
+var center = map.getCenter();
+var zoom = map.getZoom() + 2;
+
+// Shift the geographic center slightly north
+map.setView(
+    [center.lat - 0.14, center.lng],
+    zoom,
+    { animate: false }
+);
         </script>        
     </body>
 </html>
