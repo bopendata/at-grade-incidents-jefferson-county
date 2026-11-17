@@ -117,21 +117,24 @@ please refer to:
 This dashboard is intended for visualization and analytical purposes. Users requiring the latest available information should refer to the original data providers.
 
 
+
 ## Citation
 
-If you use this dataset, dashboard, or any derived products, please cite:
+If you use this dashboard, dataset, or any derived analytical products, please cite the associated research publication:
 
-> Author(s). (Year). *Title of the manuscript*. SSRN / arXiv.  
-> DOI/Identifier: `<DOI or arXiv ID>`  
-> Available at: `<Preprint URL>`
+> Jha, S., Devkota, A., Seth, Y., Jabin, A., Unnikrishnan, A., & Usmani, M. (2026). *B-OPEN: Birmingham Open-access Data Repository*. Under Review: AGU GeoHealth.
 
-Please use the journal citation instead if a peer-reviewed version becomes available.
-
+Please cite the associated publication when using the datasets or analytical outputs from this project.
 
 ## Contact
 
-For questions regarding this dataset or dashboard, please contact:
+For questions regarding the dashboard, datasets, methodology, or research project, please contact:
 
-**Name:**  
-**Affiliation:**  
-**Email:** 
+**Dr. Avinash Unnikrishnan**  
+Fouad H. Fouad Endowed Professor and Chair  
+Department of Civil, Construction, and Environmental Engineering  
+The University of Alabama at Birmingham  
+
+- **Website:** [http://avinashu.com/](http://avinashu.com/)
+- **Email:** [aunnikri@uab.edu](mailto:aunnikri@uab.edu)
+- **Phone:** 205-934-1930
